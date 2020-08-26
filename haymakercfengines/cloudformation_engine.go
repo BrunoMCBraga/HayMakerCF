@@ -75,26 +75,18 @@ func CloudFormationDeleteStack(stackName *string) error {
 
 	_, deleteStackStubError := deleteStackStub(stackName)
 	if deleteStackStubError != nil {
-		fmt.Println("LOOOOOL3")
 		return errors.New("|" + "HayMakerCF->haymakercfengines->cloudformation_engine->CloudFormationDeleteStack->deleteStackStub:" + deleteStackStubError.Error() + "|")
 	}
 
 	for true {
-		fmt.Println("LOOOOOL")
 		describeStacksStubResult, describeStacksStubError := describeStacksStub(stackName)
 		if describeStacksStubError != nil {
-			fmt.Println("LOOOOOL1")
-			fmt.Println(*describeStacksStubResult.Stacks[0].StackStatus)
-			fmt.Println(*describeStacksStubResult.Stacks[0].StackStatus)
-			fmt.Println(*describeStacksStubResult.Stacks[0].StackStatus)
 			return errors.New("|" + "HayMakerCF->haymakercfengines->cloudformation_engine->CloudFormationDeleteStack->describeStacksStub:" + describeStacksStubError.Error() + "|")
 		}
 
 		if *describeStacksStubResult.Stacks[0].StackStatus == cloudformation.StackStatusDeleteComplete {
 			break
 		} else if *describeStacksStubResult.Stacks[0].StackStatus == cloudformation.StackStatusDeleteFailed {
-			fmt.Println("LOOOOOL2")
-			fmt.Println(*describeStacksStubResult.Stacks[0].StackStatus)
 			return errors.New("|HayMakerCF->haymakercfengines->cloudformation_engine->CloudFormationDeleteStack->describeStacksStub: Failed to delete stack. Consider deleting dependencies manually and retrying.|")
 		}
 

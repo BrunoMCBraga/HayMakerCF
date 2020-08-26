@@ -496,7 +496,14 @@ func KubernetesGetListOfPodsInReadyState(deploymentName string) (map[string]bool
 
 	for _, pod := range podsListResult.Items {
 		for podLabelKey, podLabelValue := range pod.Labels {
-			if podLabelKey == "app" && podLabelValue == deploymentName && pod.Status.Conditions[0].Status == apiv1.ConditionTrue {
+			failedConditionDetected := false
+			for _, podCondition := range pod.Status.Conditions {
+				if podCondition.Status == apiv1.ConditionFalse {
+					failedConditionDetected = true
+					break
+				}
+			}
+			if podLabelKey == "app" && podLabelValue == deploymentName && !failedConditionDetected {
 				runningPodsMap[pod.Name] = true
 			}
 		}
