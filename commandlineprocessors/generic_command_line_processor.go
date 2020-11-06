@@ -6,6 +6,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/BrunoMCBraga/HayMakerCF/globalstringsproviders"
+	"github.com/BrunoMCBraga/HayMakerCF/haymakercfengines"
+	"github.com/BrunoMCBraga/HayMakerCF/haymakercfutil"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -13,9 +16,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/eks"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/BrunoMCBraga/HayMakerCF/globalstringsproviders"
-	"github.com/BrunoMCBraga/HayMakerCF/haymakercfengines"
-	"github.com/BrunoMCBraga/HayMakerCF/haymakercfutil"
 )
 
 const defaultKubeconfigPathWithinHome string = ".kube/config"
@@ -123,14 +123,15 @@ func teardownCloudFormationConfig(stackName *string, bucketName *string, repoNam
 
 	deleteAllServicesAndDeploymentsError := deleteAllServicesAndDeployments(kubeConfig)
 	if deleteAllServicesAndDeploymentsError != nil {
-		return errors.New("|" + "HayMakerCF->commandlineprocessors->generic_command_line_processor->teardownCloudFormationConfig->deleteAllServicesAndDeployments:" + deleteAllServicesAndDeploymentsError.Error() + "|")
+		fmt.Println("|" + "HayMakerCF->commandlineprocessors->generic_command_line_processor->teardownCloudFormationConfig->deleteAllServicesAndDeployments:" + deleteAllServicesAndDeploymentsError.Error() + "|")
 	}
 
 	time.Sleep(time.Duration(waitTimeBeforeDeletingCFCluster) * time.Second)
 
+	//We don't stop just becayse ecr delete failed..
 	deleteECRError := deleteECR(repoName, zone)
 	if deleteECRError != nil {
-		return errors.New("|" + "HayMakerCF->commandlineprocessors->generic_command_line_processor->teardownCloudFormationConfig->deleteECR:" + deleteECRError.Error() + "|")
+		fmt.Println("|" + "HayMakerCF->commandlineprocessors->generic_command_line_processor->teardownCloudFormationConfig->deleteECR:" + deleteECRError.Error() + "|")
 	}
 
 	cloudFormationSession := cloudformation.New(awsSession, aws.NewConfig().WithRegion(*zone))
