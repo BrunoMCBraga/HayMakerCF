@@ -16,10 +16,15 @@ const cloudFormationDeleteWait int = 10
 
 func createStackStub(stackName *string, templateURL *string) (*cloudformation.CreateStackOutput, error) {
 
+	IAMCapability := cloudformation.CapabilityCapabilityIam
+
+	capabilities := []*string{&IAMCapability}
+
 	createStackInputObject := &cloudformation.CreateStackInput{
-		OnFailure:   aws.String(cloudformation.OnFailureDelete),
-		StackName:   aws.String(*stackName),
-		TemplateURL: aws.String(*templateURL),
+		Capabilities: capabilities,
+		OnFailure:    aws.String(cloudformation.OnFailureDelete),
+		StackName:    aws.String(*stackName),
+		TemplateURL:  aws.String(*templateURL),
 	}
 
 	return cloudFormationInstance.CreateStack(createStackInputObject)
